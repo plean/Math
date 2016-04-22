@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo rm -f /usr/share/man/man3/107transfer.3.gz
+

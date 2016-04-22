@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo rm -f /usr/share/man/man1/108trigo.1.gz
+

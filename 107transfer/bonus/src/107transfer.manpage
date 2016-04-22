@@ -1,0 +1,24 @@
+.\" Manpage for 107transfer.
+.\" Contact matteo.melis@epitech.eu to correct errors or typos.
+.TH man 3 "29 February 2016" "1.0" "Mathematics : 107transfer"
+.SH NAME
+107transfer
+
+Print the frequency responses of the components for the values from 0 to 1, by 0.001 steps
+.SH SYNOPSIS
+    ./107transfer [num den]*
+.SH DESCRIPTION
+    num			polynomial numerator defined by its coeficients
+    den			polynomial denominator defined by its coeficients
+.SH OPTIONS
+    -h, --help		display this help and exit
+.SH Exit Status:
+    0	If OK,
+    84	If problem, (e.g., invalid argument(s))
+.SH EXAMPLES
+    ./107transfer "0*1*2*3*4" "1"
+    ./107transfer "0*0*9" "1*3*5" "2*4*6" "8*8*8"
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Written by Plancher Jean (jean.planch@epitech.eu) and Melis Matteo (matteo.melis@epitech.eu)

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sudo mkdir -p /usr/share/man/man1/
+sudo cp ./src/109titration.manpage /usr/share/man/man1/109titration.1
+sudo gzip -f $_

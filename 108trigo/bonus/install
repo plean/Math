@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo mkdir -p /usr/share/man/man1/
+sudo cp ./src/108trigo.manpage /usr/share/man/man1/108trigo.1
+sudo gzip -f $_
