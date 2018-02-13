@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+import sys
+
+def _help():
+    print("USAGE\n"
+          "\t./201yams d1 d2 d3 d4 d5 c\n"
+          "DESCRIPTION\n"
+          "\td1 value of the first die (0 if not thrown)\n"
+          "\td2 value of the second die (0 if not thrown)\n"
+          "\td3 value of the third die (0 if not thrown)\n"
+          "\td4 value of the fourth die (0 if not thrown)\n"
+          "\td5 value of the fifth die (0 if not thrown)\n"
+          "\tc expected combination")
+
+def _check_argument_errors(argc, argv):
+    if len(argv) != argc:
+        raise ValueError
+    for arg in argv:
+        if not arg.isdigit() or not 0 < int(arg) <= 6:
+            raise ValueError
+
+def _sup_zero(a):
+    return a if a > 0 else 0
+
+##
+## Proba
+##
+
+# (5./6) ** x           <= proba of not getting an n with x dice
+# 1 - (5./6) ** x       <= proba of getting an n with x dice
+
+import math
+
+def _C(x, k):
+    return math.factorial(x) / ( math.factorial(k) * math.factorial(x - k))
+
+def _proba(x, k, p, q): # proba of getting only k n with x dice
+    return _C(x, k) * p ** k * q ** (x-k)
+
+def _sum_proba(nb_dice, min_res, p=1./6, q=5./6): # sum of porbabilty of getting only min_res n with nb_dice dice
+    return sum(_proba(nb_dice, i, p, q) for i in range(min_res, nb_dice + 1))
+
+def pair(comb):
+    _check_argument_errors(1, comb)
+    print("chances to get a %s pair: %.2f%%" % (comb[0], 100 * [
+        1, # _sum_proba(3, 0),
+        0.5177469135802469, # _sum_proba(4, 1),
+        0.19624485596707822, # _sum_proba(5, 2)
+    ][_sup_zero(2 - sys.argv.count(comb[0]))]))
+
+def three(comb):
+    _check_argument_errors(1, comb)
+    print("chances to get a %s three-of-a-kind: %.2f%%" % (comb[0], 100 * [
+        1, # _sum_proba(2, 0),
+        0.4212962962962964, # _sum_proba(3, 1),
+        0.13194444444444445, # _sum_proba(4, 2),
+        0.03549382716049383, # _sum_proba(5, 3)
+    ][_sup_zero(3 - sys.argv.count(comb[0]))]))
+
+def four(comb):
+    _check_argument_errors(1, comb)
+    print("chances to get a %s four-of-a-kind: %.2f%%" % (comb[0], 100 * [
+        1, # _sum_proba(1, 0),
+        0.3055555555555556, # _sum_proba(2, 1),
+        0.07407407407407407, # _sum_proba(3, 2),
+        0.0162037037037037, # _sum_proba(4, 3),
+        0.0033436213991769543, # _sum_proba(5, 4)
+    ][_sup_zero(4 - sys.argv.count(comb[0]))]))
+
+def yams(comb):
+    _check_argument_errors(1, comb)
+    print("chances to get a %s yams: %.2f%%" % (comb[0], 100 * [
+        1, # _sum_proba(0, 0),
+        0.16666666666666666, # _sum_proba(1, 1),
+        0.027777777777777776, # _sum_proba(2, 2),
+        0.0046296296296296285, # _sum_proba(3, 3),
+        0.0007716049382716048, # _sum_proba(4, 4),
+        0.00012860082304526745, # _sum_proba(5, 5)
+    ][_sup_zero(5 - sys.argv.count(comb[0]))]))
+
+def full(comb):
+    _check_argument_errors(2, comb)
+    if comb[0] == comb[1]:
+        raise ValueError
+    nb_c = [ _sup_zero(3 - sys.argv.count(comb[0])),  _sup_zero(2 - sys.argv.count(comb[1]))]
+    # to lazy to do multi dimensional array with all combination (5 * 3 possibilities) so here is the equation
+    print("chances to get a %s full of %s: %.2f%%" % (comb[0], comb[1], 100 * _C(sum(nb_c), nb_c[0]) * _C(nb_c[1], nb_c[1]) / 6.**(sum(nb_c))))
+
+def straight(comb):
+    _check_argument_errors(1, comb)
+    if (comb[0] not in ["5", "6"]):
+        _help()
+        sys.exit(84)
+    tmp = list(set(sys.argv[1:-1]))
+    print("chances to get a %s straight: %.2f%%" % (comb[0], 100 * [
+        1, # math.factorial(0) / 6. ** 0,
+        0.16666666666666666, # math.factorial(1) / 6. ** 1,
+        0.05555555555555555, # math.factorial(2) / 6. ** 2,
+        0.027777777777777776, # math.factorial(3) / 6. ** 3,
+        0.018518518518518517, # math.factorial(4) / 6. ** 4,
+        0.015432098765432098 # math.factorial(5) / 6. ** 5,
+    ][5 - (len(tmp) - int('0' in tmp) - int(str(1 + int(comb[0] == '5') * 5) in tmp))]))
+
+def main():
+    try:
+        if "-h" in sys.argv:
+            _help()
+            sys.exit(0)
+        elif len(sys.argv) == 7:
+            for i in range(1, 6):
+                if not 0 <= int(sys.argv[i]) <= 6:
+                    raise ValueError
+            cases = {
+                'pair_': pair,
+                'three_': three,
+                'four_': four,
+                'full_': full,
+                'straight_': straight,
+                'yams_': yams
+            }
+            for case in cases:
+                if sys.argv[6].startswith(case):
+                    cases[case](sys.argv[6].split('_')[1:])
+                    sys.exit(0)
+        raise ValueError
+    except ValueError:
+        _help()
+        sys.exit(84)
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+import sys
+
+proba = lambda a, b, x, y: ((a - x) * (b - y)) / ((5 * a - 150) * (5 * b - 150))
+iter_diag = lambda x: [[x[z - m][m] for m in range(z + 1) if m < len(x) and z - m < len(x)] for z in range(len(x) * 2 - 1)]
+esperance = lambda x, start=0, pow=1: 10 * sum((i + start) ** pow * sum(x[i]) for i in range(len(x)))
+variance = lambda x, start=0: 10 * esperance(x, start, 2) - esperance(x, start) ** 2
+
+def _help():
+    print("USAGE\n"
+          "\t./%s a b\n"
+          "DESCRIPTION\n"
+          "\ta constant computed from the past results\n"
+          "\tb constant computed from the past results" % sys.argv[0])
+
+def unsold(a, b):
+    if (a <= 50 or b <= 50):
+        raise ValueError
+    print("————————————————————————————————————————\n"
+          "\tX=10\tX=20\tX=30\tX=40\tX=50\tY law")
+    tab = [[] for _ in range(5)]
+    for y in range(1, 6, 1):
+        print("Y=%d\t" % (y * 10), end='')
+        for x in range(1, 6):
+            tab[x - 1].append(proba(a, b, x * 10, y * 10))
+            print("%.3f\t" % tab[x - 1][y - 1], end='')
+        print("%.3f" % sum(list(zip(*tab))[y - 1]))
+    print("X law\t", end='')
+    for i in range(0, 5):
+        print("%.3f\t" % sum(tab[i]), end='')
+    print("1\n"
+          "————————————————————————————————————————\n"
+          "z\t20\t30\t40\t50\t60\t70\t80\t90\t100\ttotal\n"
+          "p(Z=z)\t", end='')
+    diag_tab = iter_diag(tab)
+    for z in range(len(diag_tab)):
+        print("%.3f\t" % sum(diag_tab[z]), end='')
+    print("1\n"
+          "————————————————————————————————————————\n"
+          "expected value of X:\t%.1f" % esperance(tab, 1))
+    print("variance of X:\t\t%.1f" % variance(tab, 1))
+    print("expected value of Y:\t%.1f" % esperance(list(zip(*tab)), 1))
+    print("variance of Y:\t\t%.1f" % variance(list(zip(*tab)), 1))
+    print("expected value of Z:\t%.1f" % esperance(diag_tab, 2))
+    print("variance of Z:\t\t%.1f" % variance(diag_tab, 2))
+    print("————————————————————————————————————————")
+
+def main():
+    try:
+        if "-h" in sys.argv:
+            _help()
+            sys.exit(0)
+        if len(sys.argv) != 3:
+            raise ValueError
+        unsold(int(sys.argv[1]), int(sys.argv[2]))
+    except ValueError:
+        _help()
+        sys.exit(84)
+
+if __name__ == '__main__':
+    main()

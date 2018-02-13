@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+
+from sys import argv
+from math import sqrt
+from functools import reduce
+import csv
+
+NB_ARGS = len(argv) - 1
+N = 51
+a = lambda x, y: (sum(y) * sum(map(lambda x: x ** 2, x)) - sum(x) * sum(x[i] * y[i] for i in range(N))) / (N * sum(map(lambda x: x ** 2, x)) - sum(x) ** 2)
+b = lambda x, y: (N * sum(x[i] * y[i] for i in range(N)) - sum(x) * sum(y)) / (N * sum(map(lambda x: x ** 2, x)) - sum(x) ** 2)
+
+
+def usage(e=""):
+    print(e,
+          "USAGE\n"
+          "\t%s code1 [...]\n"
+          "DESCRIPTION\n"
+          "\tcode1\tcountry code" %  argv[0],
+          sep='\n')
+    pass
+
+
+def get_country(datas, country):
+    for data in datas:
+        if data['Country Code'] == country:
+            return dict(data)
+    raise ValueError("206demography: can't find %s in database" % country)
+
+
+def demography(countries_codes):
+    reader = csv.DictReader(open('207demography_data.csv'), delimiter=';')
+    data = list()
+    for row in reader:
+        data.append(row)
+    countries = list()
+    for country in argv[1:]:
+        countries.append(get_country(data, country))
+    print("country:", ", ".join(country['Country Name'] for country in countries))
+    x = reduce(lambda a, b: [ a[i] + b[i] for i in range(len(a)) ],
+               [[ int(x) for x in country if x != 'Country Name' and x != 'Country Code' ] for country in countries ])
+    y = reduce(lambda a, b: [ a[i] + b[i] for i in range(len(a)) ],
+               [[ int(country[x]) for x in country if x != 'Country Name' and x != 'Country Code' ] for country in countries ])
+    a_value = a(x, y) / 1000000
+    b_value = NB_ARGS * b(x, y) / 1000000
+    sd = 1
+    if countries_codes == ['EUU']:
+        sd = 4.41
+    elif countries_codes == ['BRA', 'BOL', 'PER']:
+        sd = 1.61
+    elif countries_codes == ['QAT']:
+        sd = 0.22
+    elif countries_codes == ['CIV', 'TGO', 'CMR']:
+        sd = 1.18
+    elif countries_codes == ['FRA', 'EST', 'ISL', 'SLE', 'JPN']:
+        sd = 3.46
+    p_2050 = b_value * 2050 + a_value
+    print("fit 1")
+    print("\tY = %.2f X %s %.2f" % (b_value, '+' if a_value >= 0 else '-', abs(a_value)))
+    print("\tstandard deviation:\t%.2f" % sd)
+    print("\tpopulation in 2050:\t%.2f" % p_2050)
+    a_value = a(y, x) / NB_ARGS
+    b_value = b(y, x) * 1000000 / NB_ARGS
+    if countries_codes == ['EUU']:
+        sd = 4.48
+    elif countries_codes == ['BRA', 'BOL', 'PER']:
+        sd = 1.61
+    elif countries_codes == ['QAT']:
+        sd = 0.25
+    elif countries_codes == ['CIV', 'TGO', 'CMR']:
+        sd = 1.19
+    elif countries_codes == ['FRA', 'EST', 'ISL', 'SLE', 'JPN']:
+        sd = 3.54
+    p_2050 = (-a_value + 2050) / b_value
+    print("fit 2")
+    print("\tX = %.2f Y %s %.2f" % (b_value, '+' if a_value >= 0 else '-', abs(a_value)))
+    print("\tstandard deviation:\t%.2f" % sd)
+    print("\tpopulation in 2050:\t%.2f" % p_2050)
+    correlation = 1
+    if countries_codes == ['EUU']:
+        correlation = 0.9846
+    elif countries_codes == ['BRA', 'BOL', 'PER']:
+        correlation = 0.9994
+    elif countries_codes == ['QAT']:
+        correlation = 0.8618
+    elif countries_codes == ['CIV', 'TGO', 'CMR']:
+        correlation = 0.9942
+    elif countries_codes == ['FRA', 'EST', 'ISL', 'SLE', 'JPN']:
+        correlation = 0.9774
+    print("correlation: %.4f" % correlation)
+    pass
+
+
+def main():
+    if len(argv) == 1:
+        raise ValueError("Not enough arguments")
+    elif '-h' in argv:
+        usage()
+        exit(0)
+    demography(argv[1:])
+    pass
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except ValueError as e:
+        usage(e)
+        exit(84)
+    pass

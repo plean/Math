@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+
+from sys import argv
+from math import sqrt
+
+def usage(e):
+    print(e,
+          "USAGE\n"
+          "\t%s n a h sd\n"
+          "DESCRIPTION\n"
+          "\tn\tnumber of values\n"
+          "\ta\tarithmetic mean\n"
+          "\th\tharmonic mean\n"
+          "\tsd\tstandard deviation" %  argv[0],
+          sep='\n')
+    pass
+
+
+def get_input():
+    print("indtast din vaerdi : ", end='')
+
+    try:
+        arg = input()
+    except EOFError:
+        exit(0)
+    if arg == "ENDE":
+        exit(0)
+
+    try:
+        ret = float(arg)
+    except ValueError as e:
+        print("It must be a number strictly above 0")
+        return get_input()
+
+    if ret == 0:
+        print("It must be a number strictly above 0")
+        return get_input()
+
+    return ret
+
+
+def neutrinos(n, a, h, sd):
+    arg = get_input()
+
+    s = n * a
+    sc = (sd**2 + a**2) * n
+
+    n += 1
+    a = (s + arg) / n
+    q =  sqrt((sc + arg**2) / n)
+    h = n / (1 / arg + (n - 1) / h)
+    sd = sqrt((sc + arg**2) / n - a**2)
+
+    print("\tantal mãlinder :\t%d" % n)
+    print("\tstandardafvilgelse :\t%.2f" % sd)
+    print("\taritmetisk gennemsnit :\t%.2f" % a)
+    print("\tkvadratisk gennemsnit :\t%.2f" % q)
+    print("\tharmonisk gennemsnit :\t%.2f\n" % h)
+
+    neutrinos(n, a, h, sd)
+    pass
+
+
+def main():
+    if len(argv) != 5:
+        raise ValueError("Invalid Argument")
+    n = float(argv[1])
+    if n < 0:
+        raise ValueError("n must a positive number")
+    a = float(argv[2])
+    if a < 0:
+        raise ValueError("a must a positive number")
+    h = float(argv[3])
+    if h <= 0:
+        raise ValueError("h must be a number strictly above 0")
+    sd = float(argv[4])
+    if sd < 0:
+        raise ValueError("sd must a positive number")
+    neutrinos(n, a, h, sd)
+    pass
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except ValueError as e:
+        usage(e)
+        exit(84)
+    pass
