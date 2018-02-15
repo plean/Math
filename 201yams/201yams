@@ -27,7 +27,7 @@ def _sup_zero(a):
 ##
 
 # (5./6) ** x           <= proba of not getting an n with x dice
-# 1 - (5./6) ** x       <= proba of getting an n with x dice
+# (1 - (5./6)) ** x       <= proba of getting an n with x dice
 
 import math
 
@@ -83,7 +83,7 @@ def full(comb):
     if comb[0] == comb[1]:
         raise ValueError
     nb_c = [ _sup_zero(3 - sys.argv.count(comb[0])),  _sup_zero(2 - sys.argv.count(comb[1]))]
-    # to lazy to do multi dimensional array with all combination (5 * 3 possibilities) so here is the equation
+    # too lazy to do multi dimensional array with all combination (5 * 3 possibilities) so here is the equation
     print("chances to get a %s full of %s: %.2f%%" % (comb[0], comb[1], 100 * _C(sum(nb_c), nb_c[0]) * _C(nb_c[1], nb_c[1]) / 6.**(sum(nb_c))))
 
 def straight(comb):
